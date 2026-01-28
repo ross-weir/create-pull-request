@@ -1,4 +1,5 @@
 import * as core from '@actions/core'
+import {URL} from 'url'
 import {Inputs} from './create-pull-request'
 import {Commit, GitCommandManager} from './git-command-manager'
 import {
@@ -46,13 +47,19 @@ type TreeObject = {
 export class GitHubHelper {
   private octokit: InstanceType<typeof Octokit>
 
-  constructor(githubServerHostname: string, token: string) {
+  constructor(
+    githubServerUrl: string,
+    token: string,
+    apiBasePath?: string
+  ) {
     const options: OctokitOptions = {}
     if (token) {
       options.auth = `${token}`
     }
-    if (githubServerHostname !== 'github.com') {
-      options.baseUrl = `https://${githubServerHostname}/api/v3`
+    const url = new URL(githubServerUrl)
+    if (url.hostname !== 'github.com') {
+      const basePath = apiBasePath || '/api/v3'
+      options.baseUrl = `${url.origin}${basePath}`
     } else {
       options.baseUrl = 'https://api.github.com'
     }

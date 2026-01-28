@@ -44,10 +44,11 @@ export function getRepoPath(relativePath?: string): string {
 export function getRemoteUrl(
   protocol: string,
   hostname: string,
-  repository: string
+  repository: string,
+  scheme = 'https'
 ): string {
   return protocol == 'HTTPS'
-    ? `https://${hostname}/${repository}`
+    ? `${scheme}://${hostname}/${repository}`
     : `git@${hostname}:${repository}.git`
 }
 

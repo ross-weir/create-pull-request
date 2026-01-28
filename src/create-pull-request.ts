@@ -37,6 +37,8 @@ export interface Inputs {
     always: boolean
   }
   maintainerCanModify: boolean
+  githubServerUrl: string
+  apiBasePath: string
 }
 
 export async function createPullRequest(inputs: Inputs): Promise<void> {
@@ -50,9 +52,21 @@ export async function createPullRequest(inputs: Inputs): Promise<void> {
 
     core.startGroup('Determining the base and head repositories')
     const baseRemote = gitConfigHelper.getGitRemote()
+    // Determine the server URL
+    const serverUrl = inputs.githubServerUrl
+      ? inputs.githubServerUrl
+      : `${baseRemote.scheme}://${baseRemote.hostname}`
     // Init the GitHub clients
-    const ghBranch = new GitHubHelper(baseRemote.hostname, inputs.branchToken)
-    const ghPull = new GitHubHelper(baseRemote.hostname, inputs.token)
+    const ghBranch = new GitHubHelper(
+      serverUrl,
+      inputs.branchToken,
+      inputs.apiBasePath || undefined
+    )
+    const ghPull = new GitHubHelper(
+      serverUrl,
+      inputs.token,
+      inputs.apiBasePath || undefined
+    )
     // Determine the head repository; the target for the pull request branch
     const branchRemoteName = inputs.pushToFork ? 'fork' : 'origin'
     const branchRepository = inputs.pushToFork
@@ -85,7 +99,8 @@ export async function createPullRequest(inputs: Inputs): Promise<void> {
       const remoteUrl = utils.getRemoteUrl(
         baseRemote.protocol,
         baseRemote.hostname,
-        branchRepository
+        branchRepository,
+        baseRemote.scheme
       )
       await git.exec(['remote', 'add', 'fork', remoteUrl])
     }

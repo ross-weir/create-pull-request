@@ -9,6 +9,7 @@ interface GitRemote {
   hostname: string
   protocol: string
   repository: string
+  scheme: string
 }
 
 export class GitConfigHelper {
@@ -89,7 +90,8 @@ export class GitConfigHelper {
       return {
         hostname: httpsMatch[2],
         protocol: 'HTTPS',
-        repository: httpsMatch[3]
+        repository: httpsMatch[3],
+        scheme: httpsMatch[1].toLowerCase()
       }
     }
 
@@ -99,7 +101,8 @@ export class GitConfigHelper {
       return {
         hostname: sshMatch[1],
         protocol: 'SSH',
-        repository: sshMatch[2]
+        repository: sshMatch[2],
+        scheme: 'https'
       }
     }
 
@@ -110,7 +113,8 @@ export class GitConfigHelper {
       return {
         hostname: gitMatch[1],
         protocol: 'GIT',
-        repository: gitMatch[2]
+        repository: gitMatch[2],
+        scheme: 'https'
       }
     }
 
@@ -120,7 +124,8 @@ export class GitConfigHelper {
   }
 
   async savePersistedAuth(): Promise<void> {
-    const serverUrl = new URL(`https://${this.getGitRemote().hostname}`)
+    const remote = this.getGitRemote()
+    const serverUrl = new URL(`${remote.scheme}://${remote.hostname}`)
     this.extraheaderConfigKey = `http.${serverUrl.origin}/.extraheader`
     // Backup checkout@v6 credential files if they exist
     await this.hideCredentialFiles()

@@ -82,6 +82,16 @@ inputs:
   maintainer-can-modify:
     description: 'Indicates whether maintainers can modify the pull request.'
     default: true
+  github-server-url:
+    description: >
+      The full URL of the GitHub or Forgejo/Gitea server,
+      e.g. `http://forgejo:3000` or `https://github.example.com`.
+      Defaults to auto-detection from the git remote.
+  api-base-path:
+    description: >
+      The API base path for the server.
+      e.g. `/api/v1` for Forgejo/Gitea, `/api/v3` for GitHub Enterprise.
+      Defaults to `/api/v3` for non-github.com servers.
 outputs:
   pull-request-number:
     description: 'The pull request number'
